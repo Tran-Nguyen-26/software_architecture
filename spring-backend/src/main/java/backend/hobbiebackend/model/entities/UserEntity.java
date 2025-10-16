@@ -1,6 +1,15 @@
 package backend.hobbiebackend.model.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.Table;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToMany;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

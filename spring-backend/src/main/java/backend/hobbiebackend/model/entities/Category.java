@@ -1,8 +1,11 @@
 package backend.hobbiebackend.model.entities;
 
 import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
-
-import javax.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "categories")

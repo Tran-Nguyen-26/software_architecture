@@ -1,12 +1,16 @@
 package backend.hobbiebackend.model.entities;
 
 import backend.hobbiebackend.model.entities.enums.GenderEnum;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +71,6 @@ public class AppClient extends UserEntity implements Serializable {
     }
 
     @ManyToMany
-    @LazyCollection(LazyCollectionOption.FALSE)
     public List<Hobby> getSaved_hobbies() {
         return saved_hobbies;
     }

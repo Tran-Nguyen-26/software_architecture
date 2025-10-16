@@ -2,68 +2,73 @@ package backend.hobbiebackend.config;
 
 import backend.hobbiebackend.filter.JwtFilter;
 import backend.hobbiebackend.security.HobbieUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
+
     private final HobbieUserDetailsService hobbieUserDetailsService;
     private final PasswordEncoder passwordEncoder;
-
     private final JwtFilter jwtFilter;
+    private final AuthenticationEntryPoint authEntryPoint;
 
-    @Autowired
-    public SecurityConfiguration(JwtFilter jwtFilter, HobbieUserDetailsService hobbieUserDetailsService, PasswordEncoder passwordEncoder) {
+    public SecurityConfiguration(
+            JwtFilter jwtFilter,
+            HobbieUserDetailsService hobbieUserDetailsService,
+            PasswordEncoder passwordEncoder,
+            AuthenticationEntryPoint authEntryPoint
+    ) {
         this.hobbieUserDetailsService = hobbieUserDetailsService;
         this.jwtFilter = jwtFilter;
         this.passwordEncoder = passwordEncoder;
+        this.authEntryPoint = authEntryPoint;
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(hobbieUserDetailsService);
-    }
-
-    @Override
-    public void configure(final WebSecurity webSecurity) {
-        webSecurity.ignoring().antMatchers(
-                "/v3/api-docs/**",
-                "/swagger-ui/**",
-                "/swagger-ui/index.html");
-    }
-
-    @Override
     @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(hobbieUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.cors();
-        http.csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/register", "/signup", "/authenticate", "/notification", "/password", "/swagger-ui/index.html", "/v3/api-docs", "/configuration/ui", "/swagger-resources/**",
-                        "/configuration/security", "/swagger-ui/*", "/webjars/**", "/v3/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.disable())
+            .csrf(AbstractHttpConfigurer::disable)
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/v1/login/**",
+                    "/register", "/signup", "/authenticate", "/notification", "/password",
+                    "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            );
+
+        http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
+        return http.build();
     }
 }

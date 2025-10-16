@@ -11,7 +11,12 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 public class HobbieConfigurationBeans {
     @Bean
     public PasswordEncoder createPasswordEncoder() {
-        return new Pbkdf2PasswordEncoder();
+        return new Pbkdf2PasswordEncoder(
+        "", // secret (để trống nếu không dùng)
+        310000, // số vòng lặp (khuyến nghị >= 310000)
+        256, // độ dài hash
+        Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256
+    );
     }
 
     @Bean

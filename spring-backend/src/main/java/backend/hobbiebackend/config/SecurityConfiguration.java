@@ -2,6 +2,8 @@ package backend.hobbiebackend.config;
 
 import backend.hobbiebackend.filter.JwtFilter;
 import backend.hobbiebackend.security.HobbieUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +37,15 @@ public class SecurityConfiguration {
         this.jwtFilter = jwtFilter;
         this.passwordEncoder = passwordEncoder;
         this.authEntryPoint = authEntryPoint;
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+        };
     }
 
     @Bean

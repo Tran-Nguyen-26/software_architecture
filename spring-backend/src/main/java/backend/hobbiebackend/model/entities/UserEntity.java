@@ -22,6 +22,8 @@ public class UserEntity extends BaseEntity implements Serializable {
     private String username;
     private String email;
     private List<UserRoleEntity> roles = new ArrayList<>();
+
+    @Column(length = 512)
     private String password;
 
 
@@ -44,7 +46,7 @@ public class UserEntity extends BaseEntity implements Serializable {
         this.username = username;
     }
 
-    @Column(nullable = false)
+    @Column(length = 512, nullable = false)
     public String getPassword() {
         return password;
     }

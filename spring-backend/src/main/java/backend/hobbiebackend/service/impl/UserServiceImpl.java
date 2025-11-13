@@ -14,6 +14,8 @@ import backend.hobbiebackend.service.UserRoleService;
 import backend.hobbiebackend.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,11 +113,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "appClients", key = "#appClient.id")
     public AppClient saveUpdatedUserClient(AppClient appClient) {
         return this.appClientRepository.save(appClient);
     }
 
     @Override
+    @Cacheable(value = "users", key = "#userId")
     public UserEntity findUserById(Long userId) {
         Optional<UserEntity> byId = this.userRepository.findById(userId);
         if (byId.isPresent()) {
@@ -126,6 +130,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#email")
     public UserEntity findUserByEmail(String email) {
         Optional<UserEntity> byEmail = this.userRepository.findByEmail(email);
         if (byEmail.isPresent()) {
@@ -146,6 +151,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#username")
     public UserEntity findUserByUsername(String username) {
         Optional<UserEntity> byUsername = this.userRepository.findByUsername(username);
         if (byUsername.isPresent()) {
@@ -191,6 +197,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Cacheable(value = "appClients", key = "#clientId")
     public AppClient findAppClientById(Long clientId) {
         Optional<AppClient> user = this.appClientRepository.findById(clientId);
         if (user.isPresent()) {
@@ -219,11 +226,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "appClients", key = "#username")
     public AppClient findAppClientByUsername(String username) {
         return this.appClientRepository.findByUsername(username).orElseThrow();
     }
 
     @Override
+    @Cacheable(value = "businessOwers", key = "#username")
     public BusinessOwner findBusinessByUsername(String username) {
         return this.businessOwnerRepository.findByUsername(username).get();
     }

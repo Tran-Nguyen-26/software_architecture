@@ -1,5 +1,7 @@
 package backend.hobbiebackend.model.entities;
 
+import java.io.Serializable;
+
 import backend.hobbiebackend.model.entities.enums.UserRoleEnum;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,7 +12,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "roles")
-public class UserRoleEntity extends BaseEntity {
+public class UserRoleEntity extends BaseEntity implements Serializable {
     private UserRoleEnum role;
 
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,7 @@
 package backend.hobbiebackend.model.entities;
 
+import java.io.Serializable;
+
 import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
 import backend.hobbiebackend.model.entities.enums.LocationEnum;
 
@@ -12,7 +14,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "test_results")
-public class Test extends BaseEntity {
+public class Test extends BaseEntity implements Serializable {
     private String username;
     private CategoryNameEnum categoryOne;
     private CategoryNameEnum categoryTwo;

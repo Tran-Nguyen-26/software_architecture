@@ -6,6 +6,7 @@ import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
 import backend.hobbiebackend.model.repostiory.CategoryRepository;
 import backend.hobbiebackend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Cacheable(value = "categories", key = "'NAME:' + #category.name()")
     public Category findByName(CategoryNameEnum category) {
         Optional<Category> byName = this.categoryRepository.findByName(category);
 

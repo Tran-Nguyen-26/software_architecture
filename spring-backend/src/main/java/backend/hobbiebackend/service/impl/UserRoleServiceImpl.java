@@ -6,6 +6,8 @@ import backend.hobbiebackend.model.entities.enums.UserRoleEnum;
 import backend.hobbiebackend.model.repostiory.UserRoleRepository;
 import backend.hobbiebackend.service.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,6 +22,11 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
+    @Cacheable(
+        value = "userRoleByEnum",
+        key = "#userRoleEnum.name()",
+        unless = "#result == null"
+    )
     public UserRoleEntity getUserRoleByEnumName(UserRoleEnum userRoleEnum) {
         Optional<UserRoleEntity> byRole = this.userRoleRepository.findByRole(userRoleEnum);
         if (byRole.isPresent()) {
@@ -30,6 +37,10 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
+    @CacheEvict(
+        value = "userRoleByEnum",
+        key = "#userRoleEntity.role.name()"
+    )
     public UserRoleEntity saveRole(UserRoleEntity userRoleEntity) {
         return this.userRoleRepository.save(userRoleEntity);
     }

@@ -9,7 +9,6 @@ import backend.hobbiebackend.model.entities.enums.UserRoleEnum;
 import backend.hobbiebackend.model.repostiory.AppClientRepository;
 import backend.hobbiebackend.model.repostiory.BusinessOwnerRepository;
 import backend.hobbiebackend.model.repostiory.UserRepository;
-import backend.hobbiebackend.model.repostiory.UserRoleRepository;
 import backend.hobbiebackend.service.UserRoleService;
 import backend.hobbiebackend.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -113,13 +112,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict(value = "appClients", key = "#appClient.id")
+    @CacheEvict(value = "appClients", key = "'ID:' + #appClient.id")
     public AppClient saveUpdatedUserClient(AppClient appClient) {
         return this.appClientRepository.save(appClient);
     }
 
     @Override
-    @Cacheable(value = "users", key = "#userId")
+    @Cacheable(value = "users", key = "'ID:' + #userId")
     public UserEntity findUserById(Long userId) {
         Optional<UserEntity> byId = this.userRepository.findById(userId);
         if (byId.isPresent()) {
@@ -130,7 +129,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "users", key = "#email")
+    @Cacheable(value = "users", key = "'EMAIL' + #email")
     public UserEntity findUserByEmail(String email) {
         Optional<UserEntity> byEmail = this.userRepository.findByEmail(email);
         if (byEmail.isPresent()) {
@@ -151,7 +150,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "users", key = "#username")
+    @Cacheable(value = "users", key = "'USERNAME:' + #username")
     public UserEntity findUserByUsername(String username) {
         Optional<UserEntity> byUsername = this.userRepository.findByUsername(username);
         if (byUsername.isPresent()) {
@@ -197,7 +196,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @Cacheable(value = "appClients", key = "#clientId")
+    @Cacheable(value = "appClients", key = "'ID:' + #clientId")
     public AppClient findAppClientById(Long clientId) {
         Optional<AppClient> user = this.appClientRepository.findById(clientId);
         if (user.isPresent()) {
@@ -226,13 +225,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "appClients", key = "#username")
+    @Cacheable(value = "appClients", key = "'USERNAME:' + #username")
     public AppClient findAppClientByUsername(String username) {
         return this.appClientRepository.findByUsername(username).orElseThrow();
     }
 
     @Override
-    @Cacheable(value = "businessOwers", key = "#username")
+    @Cacheable(value = "businessOwers", key = "'USERNAME:' + #username")
     public BusinessOwner findBusinessByUsername(String username) {
         return this.businessOwnerRepository.findByUsername(username).get();
     }

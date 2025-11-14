@@ -8,11 +8,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "hobbies")
-public class Hobby extends BaseEntity {
+public class Hobby extends BaseEntity implements Serializable {
     private String name;
     private String slogan;
     private String intro;

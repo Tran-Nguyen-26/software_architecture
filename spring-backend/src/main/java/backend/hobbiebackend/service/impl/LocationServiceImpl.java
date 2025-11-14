@@ -6,6 +6,7 @@ import backend.hobbiebackend.model.entities.enums.LocationEnum;
 import backend.hobbiebackend.model.repostiory.LocationRepository;
 import backend.hobbiebackend.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,6 +37,11 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+     @Cacheable(
+        value = "locationByName",
+        key = "#locationEnum.name()", 
+        unless = "#result == null"
+    )
     public Location getLocationByName(LocationEnum locationEnum) {
         Optional<Location> location = this.locationRepository.findByName(locationEnum);
         if (location.isPresent()) {

@@ -1,5 +1,7 @@
 package backend.hobbiebackend.model.entities;
 
+import java.io.Serializable;
+
 import backend.hobbiebackend.model.entities.enums.LocationEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +12,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "locations")
-public class Location extends BaseEntity {
+public class Location extends BaseEntity implements Serializable {
 
     private LocationEnum name;
 

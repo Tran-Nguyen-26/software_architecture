@@ -11,11 +11,11 @@ import backend.hobbiebackend.service.LocationService;
 import backend.hobbiebackend.service.UserService;
 import com.cloudinary.Cloudinary;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -27,7 +27,6 @@ public class HobbyServiceImpl implements HobbyService {
     private final LocationService locationService;
     private final Cloudinary cloudinary;
 
-    @Autowired
     public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary) {
         this.hobbyRepository = hobbyRepository;
         this.categoryService = categoryService;
@@ -163,6 +162,7 @@ public class HobbyServiceImpl implements HobbyService {
     }
 
     @Override
+    @Cacheable(value = "businessHobbies", key = "#username")
     public Set<Hobby> getAllHobbiesForBusiness(String username) {
         return this.hobbyRepository.findAllByCreator(username);
     }

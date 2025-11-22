@@ -2,7 +2,7 @@ import axios from "axios";
 
 const UserEmailDataService = async (email) => {
   try {
-    return axios.post(`http://localhost:8080/notification`, null, {
+    return axios.post(`http://localhost:8088/notification`, null, {
       params: {
         email,
       },

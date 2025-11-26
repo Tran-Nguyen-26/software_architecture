@@ -2,6 +2,7 @@ package backend.hobbiebackend.web;
 
 import backend.hobbiebackend.model.dto.HobbyInfoDto;
 import backend.hobbiebackend.model.dto.HobbyInfoUpdateDto;
+import backend.hobbiebackend.model.dto.HobbyViewDto;
 import backend.hobbiebackend.model.entities.*;
 import backend.hobbiebackend.service.CategoryService;
 import backend.hobbiebackend.service.HobbyService;
@@ -9,6 +10,8 @@ import backend.hobbiebackend.service.LocationService;
 import backend.hobbiebackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -116,12 +119,12 @@ public class HobbyController {
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
+    @Transactional
     @GetMapping("/saved")
     @Operation(summary = "Show hobbies that are saved in favorites", security = @SecurityRequirement(name = "bearerAuth"))
-    public List<Hobby> savedHobbies(@RequestParam String username) {
+    public List<HobbyViewDto> savedHobbies(@RequestParam String username) {
         AppClient appClient = this.userService.findAppClientByUsername(username);
         return this.hobbyService.findSavedHobbies(appClient);
-
     }
 }
 

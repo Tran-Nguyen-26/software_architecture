@@ -7,7 +7,7 @@ const MyHobbiesDataService = (id) => {
   try {
     return axios.get(`/hobbies/saved/`, {
       params: {
-        username,
+        username
       },
     });
   } catch (err) {

@@ -1,6 +1,7 @@
 package backend.hobbiebackend.service.impl;
 
 import backend.hobbiebackend.handler.NotFoundException;
+import backend.hobbiebackend.model.dto.HobbyViewDto;
 import backend.hobbiebackend.model.entities.*;
 import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
 import backend.hobbiebackend.model.entities.enums.LocationEnum;
@@ -158,9 +159,27 @@ public class HobbyServiceImpl implements HobbyService {
     }
 
     @Override
-    public List<Hobby> findSavedHobbies(AppClient currentAppClient) {
-        return currentAppClient.getSaved_hobbies();
+    public List<HobbyViewDto> findSavedHobbies(AppClient currentAppClient) {
+        return currentAppClient.getSaved_hobbies()
+            .stream()
+            .map(h -> {
+                HobbyViewDto dto = new HobbyViewDto();
+                dto.setId(h.getId());
+                dto.setName(h.getName());
+                dto.setSlogan(h.getSlogan());
+                dto.setDescription(h.getDescription());
+                dto.setPrice(h.getPrice());
+                dto.setCategory(h.getCategory().getName().name());
+                dto.setLocation(h.getLocation().getName().name());
+                dto.setProfileImgUrl(h.getProfileImgUrl());
+                dto.setGalleryImgUrl1(h.getGalleryImgUrl1());
+                dto.setGalleryImgUrl2(h.getGalleryImgUrl2());
+                dto.setGalleryImgUrl3(h.getGalleryImgUrl3());
+                return dto;
+            })
+            .toList();
     }
+
 
     @Override
     public Set<Hobby> getAllHobbiesForBusiness(String username) {

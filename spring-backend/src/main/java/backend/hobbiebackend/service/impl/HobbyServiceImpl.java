@@ -13,6 +13,9 @@ import backend.hobbiebackend.service.UserService;
 import com.cloudinary.Cloudinary;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -158,27 +161,30 @@ public class HobbyServiceImpl implements HobbyService {
         return false;
     }
 
-    @Override
-    public List<HobbyViewDto> findSavedHobbies(AppClient currentAppClient) {
-        return currentAppClient.getSaved_hobbies()
-            .stream()
-            .map(h -> {
-                HobbyViewDto dto = new HobbyViewDto();
-                dto.setId(h.getId());
-                dto.setName(h.getName());
-                dto.setSlogan(h.getSlogan());
-                dto.setDescription(h.getDescription());
-                dto.setPrice(h.getPrice());
-                dto.setCategory(h.getCategory().getName().name());
-                dto.setLocation(h.getLocation().getName().name());
-                dto.setProfileImgUrl(h.getProfileImgUrl());
-                dto.setGalleryImgUrl1(h.getGalleryImgUrl1());
-                dto.setGalleryImgUrl2(h.getGalleryImgUrl2());
-                dto.setGalleryImgUrl3(h.getGalleryImgUrl3());
-                return dto;
-            })
-            .toList();
+   @Override
+    public Page<HobbyViewDto> findSavedHobbies(AppClient currentAppClient, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Hobby> savedPage =
+                hobbyRepository.findSavedHobbiesByUser(currentAppClient.getId(), pageable);
+
+        return savedPage.map(h -> {
+            HobbyViewDto dto = new HobbyViewDto();
+            dto.setId(h.getId());
+            dto.setName(h.getName());
+            dto.setSlogan(h.getSlogan());
+            dto.setDescription(h.getDescription());
+            dto.setPrice(h.getPrice());
+            dto.setCategory(h.getCategory().getName().name());
+            dto.setLocation(h.getLocation().getName().name());
+            dto.setProfileImgUrl(h.getProfileImgUrl());
+            dto.setGalleryImgUrl1(h.getGalleryImgUrl1());
+            dto.setGalleryImgUrl2(h.getGalleryImgUrl2());
+            dto.setGalleryImgUrl3(h.getGalleryImgUrl3());
+            return dto;
+        });
     }
+
 
 
     @Override

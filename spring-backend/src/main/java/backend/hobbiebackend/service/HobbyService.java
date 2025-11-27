@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+
 public interface HobbyService {
     Hobby findHobbieById(Long id);
 
@@ -22,7 +24,7 @@ public interface HobbyService {
 
     boolean isHobbySaved(Long hobbyId, String username);
 
-    List<HobbyViewDto> findSavedHobbies(AppClient appClient);
+    public Page<HobbyViewDto> findSavedHobbies(AppClient currentAppClient, int page, int size);
 
     Set<Hobby> getAllHobbiesForBusiness(String username);
     

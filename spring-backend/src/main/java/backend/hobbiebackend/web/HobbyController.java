@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -121,10 +122,19 @@ public class HobbyController {
 
     @Transactional
     @GetMapping("/saved")
-    @Operation(summary = "Show hobbies that are saved in favorites", security = @SecurityRequirement(name = "bearerAuth"))
-    public List<HobbyViewDto> savedHobbies(@RequestParam String username) {
+    @Operation(summary = "Show hobbies that are saved in favorites (paginated)", 
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Page<HobbyViewDto>> savedHobbies(
+            @RequestParam String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         AppClient appClient = this.userService.findAppClientByUsername(username);
-        return this.hobbyService.findSavedHobbies(appClient);
+
+        Page<HobbyViewDto> result = this.hobbyService.findSavedHobbies(appClient, page, size);
+
+        return ResponseEntity.ok(result);
     }
+
 }
 

@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToMany;
 
@@ -16,7 +17,10 @@ import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username"),
+        @Index(name = "idx_users_email", columnList = "email")
+})
 public class UserEntity extends BaseEntity implements Serializable {
 
     private String username;

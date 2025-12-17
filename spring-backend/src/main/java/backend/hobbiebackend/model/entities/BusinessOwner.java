@@ -9,12 +9,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 
 import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "business_owners")
+@Table(name = "business_owners", indexes = {
+        @Index(name = "idx_business_owners_business_name", columnList = "business_name"),
+        @Index(name = "idx_business_owners_address", columnList = "address")
+})
 public class BusinessOwner extends UserEntity {
     private String businessName;
     private String address;

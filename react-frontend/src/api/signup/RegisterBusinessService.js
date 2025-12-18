@@ -2,7 +2,9 @@ import axios from "../customAxiosConfig/CustomAxiosConfig";
 
 const RegisterBusinessService = (business) => {
   try {
-    return axios.post(`/register`, business);
+    return axios.post(`/register`, business, {
+      headers: { Authorization: "" }
+    });
   } catch (err) {
     let error = "";
     if (err.response) {

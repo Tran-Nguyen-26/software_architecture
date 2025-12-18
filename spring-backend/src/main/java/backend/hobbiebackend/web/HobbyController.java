@@ -40,17 +40,7 @@ public class HobbyController {
     @PostMapping
     @Operation(summary = "Create new hobby", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<HttpStatus> saveHobby(@RequestBody HobbyInfoDto info) {
-        Hobby offer = this.modelMapper.map(info, Hobby.class);
-        Category category = this.categoryService.findByName(info.getCategory());
-        Location location = this.locationService.getLocationByName(info.getLocation());
-        offer.setLocation(location);
-        offer.setCategory(category);
-        BusinessOwner business = this.userService.findBusinessByUsername(info.getCreator());
-        Set<Hobby> hobby_offers = business.getHobby_offers();
-        hobby_offers.add(offer);
-        business.setHobby_offers(hobby_offers);
-        this.hobbyService.createHobby(offer);
-        this.userService.saveUpdatedUser(business);
+        hobbyService.saveHobby(info);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -93,12 +83,7 @@ public class HobbyController {
     @PutMapping
     @Operation(summary = "Update hobby,(use existing hobby id)", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> updateHobby(@RequestBody HobbyInfoUpdateDto info) throws Exception {
-        Hobby offer = this.modelMapper.map(info, Hobby.class);
-        Category category = this.categoryService.findByName(info.getCategory());
-        Location location = this.locationService.getLocationByName(info.getLocation());
-        offer.setLocation(location);
-        offer.setCategory(category);
-        this.hobbyService.saveUpdatedHobby(offer);
+        Hobby offer = hobbyService.updateHobby(info);
         return new ResponseEntity<Hobby>(offer, HttpStatus.CREATED);
     }
 

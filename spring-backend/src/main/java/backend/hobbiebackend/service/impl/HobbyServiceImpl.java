@@ -1,6 +1,8 @@
 package backend.hobbiebackend.service.impl;
 
 import backend.hobbiebackend.handler.NotFoundException;
+import backend.hobbiebackend.model.dto.HobbyInfoDto;
+import backend.hobbiebackend.model.dto.HobbyInfoUpdateDto;
 import backend.hobbiebackend.model.entities.*;
 import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
 import backend.hobbiebackend.model.entities.enums.LocationEnum;
@@ -12,6 +14,7 @@ import backend.hobbiebackend.service.UserService;
 import com.cloudinary.Cloudinary;
 import lombok.SneakyThrows;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +29,15 @@ public class HobbyServiceImpl implements HobbyService {
     private final UserService userService;
     private final LocationService locationService;
     private final Cloudinary cloudinary;
+    private final ModelMapper modelMapper;
 
-    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary) {
+    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary, ModelMapper modelMapper) {
         this.hobbyRepository = hobbyRepository;
         this.categoryService = categoryService;
         this.userService = userService;
         this.locationService = locationService;
         this.cloudinary = cloudinary;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -178,5 +183,30 @@ public class HobbyServiceImpl implements HobbyService {
         this.hobbyRepository.save(offer);
     }
 
-}
+    @Override
+    public void saveHobby(HobbyInfoDto info) {
+        Hobby offer = modelMapper.map(info, Hobby.class);
+        Category category = categoryService.findByName(info.getCategory());
+        Location location = locationService.getLocationByName(info.getLocation());
+        offer.setLocation(location);
+        offer.setCategory(category);
+        BusinessOwner business = userService.findBusinessByUsername(info.getCreator());
+        Set<Hobby> hobby_offers = business.getHobby_offers();
+        hobby_offers.add(offer);
+        business.setHobby_offers(hobby_offers);
+        this.createHobby(offer);
+        this.userService.updateBusiness(business);
+    }
 
+    @Override
+    public Hobby updateHobby(HobbyInfoUpdateDto info) {
+        Hobby offer = modelMapper.map(info, Hobby.class);
+        Category category = categoryService.findByName(info.getCategory());
+        Location location = locationService.getLocationByName(info.getLocation());
+        offer.setLocation(location);
+        offer.setCategory(category);
+        this.saveUpdatedHobby(offer);
+        return offer;
+    }
+
+}

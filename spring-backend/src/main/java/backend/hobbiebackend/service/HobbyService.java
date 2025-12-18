@@ -1,5 +1,7 @@
 package backend.hobbiebackend.service;
 
+import backend.hobbiebackend.model.dto.HobbyInfoDto;
+import backend.hobbiebackend.model.dto.HobbyInfoUpdateDto;
 import backend.hobbiebackend.model.entities.AppClient;
 import backend.hobbiebackend.model.entities.Hobby;
 
@@ -29,4 +31,8 @@ public interface HobbyService {
     Set<Hobby> getAllHobbieMatchesForClient(String username);
 
     void createHobby(Hobby offer);
+
+    void saveHobby(HobbyInfoDto info);
+
+    Hobby updateHobby(HobbyInfoUpdateDto info);
 }

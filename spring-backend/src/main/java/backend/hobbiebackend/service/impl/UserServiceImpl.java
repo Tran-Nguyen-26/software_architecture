@@ -3,6 +3,8 @@ package backend.hobbiebackend.service.impl;
 import backend.hobbiebackend.handler.NotFoundException;
 import backend.hobbiebackend.model.dto.AppClientSignUpDto;
 import backend.hobbiebackend.model.dto.BusinessRegisterDto;
+import backend.hobbiebackend.model.dto.UpdateAppClientDto;
+import backend.hobbiebackend.model.dto.UpdateBusinessDto;
 import backend.hobbiebackend.model.entities.*;
 import backend.hobbiebackend.model.entities.enums.GenderEnum;
 import backend.hobbiebackend.model.entities.enums.UserRoleEnum;
@@ -90,6 +92,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AppClient register(AppClientSignUpDto user) {
+        if (this.userExists(user.getUsername(), user.getEmail())) {
+            throw new RuntimeException("Username or email address already in use.");
+        }
         UserRoleEntity userRole = this.userRoleService.getUserRoleByEnumName(UserRoleEnum.USER);
         AppClient appClient = this.modelMapper.map(user, AppClient.class);
         appClient.setRoles(List.of(userRole));
@@ -99,6 +104,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public BusinessOwner registerBusiness(BusinessRegisterDto business) {
+        if (this.businessExists(business.getBusinessName()) || this.userExists(business.getUsername(), business.getEmail())) {
+            throw new RuntimeException("Username or email address already in use.");
+        }
         UserRoleEntity businessUserRole = this.userRoleService.getUserRoleByEnumName(UserRoleEnum.BUSINESS_USER);
         BusinessOwner businessOwner = this.modelMapper.map(business, BusinessOwner.class);
         businessOwner.setRoles(List.of(businessUserRole));
@@ -107,14 +115,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BusinessOwner saveUpdatedUser(BusinessOwner businessOwner) {
+    public BusinessOwner saveUpdatedUser(UpdateBusinessDto business) {
+        BusinessOwner businessOwner = this.findBusinessOwnerById(business.getId());
+        if (this.businessExists(business.getBusinessName()) && (!businessOwner.getBusinessName().equals(business.getBusinessName()))) {
+            throw new RuntimeException("Business name already in use.");
+        }
+        businessOwner.setBusinessName(business.getBusinessName());
+        businessOwner.setPassword(this.passwordEncoder.encode(business.getPassword()));
+        businessOwner.setAddress(business.getAddress());
         return this.businessOwnerRepository.save(businessOwner);
+    }
+
+    @Override
+    public BusinessOwner updateBusiness(BusinessOwner businessOwner) {
+        return businessOwnerRepository.save(businessOwner);
     }
 
     @Override
     @CacheEvict(value = "appClients", key = "'ID:' + #appClient.id")
     public AppClient saveUpdatedUserClient(AppClient appClient) {
         return this.appClientRepository.save(appClient);
+    }
+
+    @Override
+    public AppClient updateUserClient(UpdateAppClientDto user) {
+        AppClient client = this.findAppClientById(user.getId());
+        client.setPassword(passwordEncoder.encode(user.getPassword()));
+        client.setGender(user.getGender());
+        client.setFullName(user.getFullName());
+        return saveUpdatedUserClient(client);
     }
 
     @Override
@@ -168,8 +197,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUserWithUpdatedPassword(UserEntity userEntity) {
-        this.userRepository.save(userEntity);
+    public UserEntity saveUserWithUpdatedPassword(Long id, String password) {
+        UserEntity userById = this.findUserById(id);
+        userById.setPassword(passwordEncoder.encode(password));
+        return this.userRepository.save(userById);
     }
 
     @Override

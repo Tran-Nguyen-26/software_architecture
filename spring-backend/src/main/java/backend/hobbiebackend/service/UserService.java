@@ -2,6 +2,8 @@ package backend.hobbiebackend.service;
 
 import backend.hobbiebackend.model.dto.AppClientSignUpDto;
 import backend.hobbiebackend.model.dto.BusinessRegisterDto;
+import backend.hobbiebackend.model.dto.UpdateAppClientDto;
+import backend.hobbiebackend.model.dto.UpdateBusinessDto;
 import backend.hobbiebackend.model.entities.AppClient;
 import backend.hobbiebackend.model.entities.BusinessOwner;
 import backend.hobbiebackend.model.entities.Hobby;
@@ -16,9 +18,13 @@ public interface UserService {
 
     BusinessOwner registerBusiness(BusinessRegisterDto business);
 
-    BusinessOwner saveUpdatedUser(BusinessOwner businessOwner);
+    BusinessOwner saveUpdatedUser(UpdateBusinessDto business);
+
+    BusinessOwner updateBusiness(BusinessOwner businessOwner);
 
     AppClient saveUpdatedUserClient(AppClient appClient);
+
+    AppClient updateUserClient(UpdateAppClientDto user);
 
     UserEntity findUserById(Long userId);
 
@@ -32,7 +38,7 @@ public interface UserService {
 
     boolean userExists(String username, String email);
 
-    void saveUserWithUpdatedPassword(UserEntity userEntity);
+    UserEntity saveUserWithUpdatedPassword(Long id, String password);
 
     AppClient findAppClientById(Long clientId);
 
@@ -43,6 +49,8 @@ public interface UserService {
     AppClient findAppClientByUsername(String username);
 
     BusinessOwner findBusinessByUsername(String username);
+
+
 }
 
 

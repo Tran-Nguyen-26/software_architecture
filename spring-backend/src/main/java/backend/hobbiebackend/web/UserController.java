@@ -55,9 +55,6 @@ public class UserController {
     @Operation(summary = "Create new client-user")
     public ResponseEntity<?> signup(@RequestBody AppClientSignUpDto user) {
         System.out.println(user);
-        if (this.userService.userExists(user.getUsername(), user.getEmail())) {
-            throw new RuntimeException("Username or email address already in use.");
-        }
         AppClient client = this.userService.register(user);
         return new ResponseEntity<AppClient>(client, HttpStatus.CREATED);
     }
@@ -65,9 +62,6 @@ public class UserController {
     @PostMapping("/register")
     @Operation(summary = "Create new business-user")
     public ResponseEntity<?> registerBusiness(@RequestBody BusinessRegisterDto business) {
-        if (this.userService.businessExists(business.getBusinessName()) || this.userService.userExists(business.getUsername(), business.getEmail())) {
-            throw new RuntimeException("Username or email address already in use.");
-        }
         BusinessOwner businessOwner = this.userService.registerBusiness(business);
         return new ResponseEntity<BusinessOwner>(businessOwner, HttpStatus.CREATED);
     }
@@ -87,11 +81,7 @@ public class UserController {
     @PutMapping("/user")
     @Operation(summary = "Update client-user information (use existing user id)", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> updateUser(@RequestBody UpdateAppClientDto user) {
-        AppClient client = this.userService.findAppClientById(user.getId());
-        client.setPassword(this.passwordEncoder.encode(user.getPassword()));
-        client.setGender(user.getGender());
-        client.setFullName(user.getFullName());
-        this.userService.saveUpdatedUserClient(client);
+        AppClient client = userService.updateUserClient(user);
         return new ResponseEntity<AppClient>(client, HttpStatus.CREATED);
     }
 
@@ -110,23 +100,14 @@ public class UserController {
     @PutMapping("/password")
     @Operation(summary = "Update password, (use existing user id)", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> setUpNewPassword(@RequestParam Long id, String password) {
-        UserEntity userById = this.userService.findUserById(id);
-        userById.setPassword(this.passwordEncoder.encode(password));
-        this.userService.saveUserWithUpdatedPassword(userById);
-        return new ResponseEntity<UserEntity>(userById, HttpStatus.CREATED);
+        UserEntity user = this.userService.saveUserWithUpdatedPassword(id, password);
+        return new ResponseEntity<UserEntity>(user, HttpStatus.CREATED);
     }
 
     @PutMapping("/business")
     @Operation(summary = "Update business-user, (use existing user id)", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> updateBusiness(@RequestBody UpdateBusinessDto business) {
-        BusinessOwner businessOwner = this.userService.findBusinessOwnerById(business.getId());
-        if (this.userService.businessExists(business.getBusinessName()) && (!businessOwner.getBusinessName().equals(business.getBusinessName()))) {
-            throw new RuntimeException("Business name already in use.");
-        }
-        businessOwner.setBusinessName(business.getBusinessName());
-        businessOwner.setPassword(this.passwordEncoder.encode(business.getPassword()));
-        businessOwner.setAddress(business.getAddress());
-        this.userService.saveUpdatedUser(businessOwner);
+        BusinessOwner businessOwner = userService.saveUpdatedUser(business);
 
         return new ResponseEntity<BusinessOwner>(businessOwner, HttpStatus.CREATED);
     }

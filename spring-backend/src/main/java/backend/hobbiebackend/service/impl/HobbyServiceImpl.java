@@ -10,6 +10,7 @@ import backend.hobbiebackend.service.CategoryService;
 import backend.hobbiebackend.service.HobbyService;
 import backend.hobbiebackend.service.LocationService;
 import backend.hobbiebackend.service.UserService;
+import backend.hobbiebackend.service.CloudinaryService;
 import com.cloudinary.Cloudinary;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +31,16 @@ public class HobbyServiceImpl implements HobbyService {
     private final UserService userService;
     private final LocationService locationService;
     private final Cloudinary cloudinary;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
-    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary) {
+    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary, CloudinaryService cloudinaryService) {
         this.hobbyRepository = hobbyRepository;
         this.categoryService = categoryService;
         this.userService = userService;
         this.locationService = locationService;
         this.cloudinary = cloudinary;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @Override
@@ -53,11 +56,7 @@ public class HobbyServiceImpl implements HobbyService {
     @SneakyThrows
     @Override
     public void saveUpdatedHobby(Hobby hobby) {
-        Optional<Hobby> byId = this.hobbyRepository.findById(hobby.getId());
-        if (byId.isPresent()) {
-            deleteResourcesById(byId.get());
-        }
-        this.hobbyRepository.save(hobby);
+        cloudinaryService.deleteHobbyImages(hobby);
     }
 
     @Override

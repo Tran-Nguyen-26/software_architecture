@@ -1,5 +1,6 @@
 package backend.hobbiebackend.web;
 
+import backend.hobbiebackend.model.dto.BusinessCampaignRequest;
 import backend.hobbiebackend.model.dto.HobbyInfoDto;
 import backend.hobbiebackend.model.dto.HobbyInfoUpdateDto;
 import backend.hobbiebackend.model.dto.HobbyViewDto;
@@ -17,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
+import backend.hobbiebackend.service.NotificationService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -25,6 +29,9 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 
 @RestController
 @RequestMapping("/hobbies")
@@ -33,16 +40,20 @@ public class HobbyController {
     private final HobbyService hobbyService;
     private final CategoryService categoryService;
     private final LocationService locationService;
+    private final NotificationService notificationService;
     private final UserService userService;
     private final ModelMapper modelMapper;
+    private final JavaMailSender mailSender;
 
     @Autowired
-    public HobbyController(HobbyService hobbyService, CategoryService categoryService, LocationService locationService, UserService userService, ModelMapper modelMapper) {
+    public HobbyController(HobbyService hobbyService, CategoryService categoryService, LocationService locationService, UserService userService, NotificationService notificationService, ModelMapper modelMapper, JavaMailSender mailSender) {
         this.hobbyService = hobbyService;
         this.categoryService = categoryService;
         this.locationService = locationService;
         this.userService = userService;
+        this.notificationService = notificationService;
         this.modelMapper = modelMapper;
+        this.mailSender = mailSender;
     }
 
     @PostMapping
@@ -136,5 +147,43 @@ public class HobbyController {
         return ResponseEntity.ok(result);
     }
 
-}
+    @PostMapping("/campaign")
+    @Operation(summary = "Business gửi email campaign tới tất cả user đã save hobbies của business",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<?> sendCampaign(@RequestBody BusinessCampaignRequest req) {
+        BusinessOwner owner = userService.findBusinessByUsername(req.getUsername());
+        notificationService.notifyBusinessCampaign(owner, req.getSubject(), req.getContent());
+        return new ResponseEntity<>("Campaign pushed to MQ", HttpStatus.OK);
+    }
 
+    @PostMapping("/campaign/direct-test-50")
+    public ResponseEntity<?> directSend1000(@RequestBody BusinessCampaignRequest req) {
+
+        long start = System.currentTimeMillis();
+
+        // MOCK 1000 emails (để test)
+        List<String> emails = IntStream.range(0, 50)
+                .mapToObj(i -> "testuser" + i + "@example.com")
+                .collect(Collectors.toList());
+
+        int sent = 0;
+        for (String email : emails) {
+            // Chặn null/blank cho chắc
+            if (email == null || email.isBlank()) continue;
+
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(email);
+            mail.setFrom("findyourhobbie@gmail.com");
+            mail.setSubject(req.getSubject());
+            mail.setText(req.getContent());
+
+            mailSender.send(mail);
+            sent++;
+        }
+
+        long tookMs = System.currentTimeMillis() - start;
+
+        return ResponseEntity.ok("DIRECT sent=" + sent + ", tookMs=" + tookMs);
+    }
+
+}

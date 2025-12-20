@@ -8,7 +8,7 @@ import backend.hobbiebackend.model.entities.enums.LocationEnum;
 import backend.hobbiebackend.model.repostiory.CategoryRepository;
 import backend.hobbiebackend.model.repostiory.HobbyRepository;
 import backend.hobbiebackend.service.*;
-import com.cloudinary.Cloudinary;
+import backend.hobbiebackend.acl.ImageStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,11 +38,11 @@ class HobbyServiceImplTest {
         LocationService locationServiceTest = mock(LocationService.class);
         mockCategoryRepository = mock(CategoryRepository.class);
         appClient = new AppClient();
-        Cloudinary cloudinary = mock(Cloudinary.class);
+        ImageStorage imageStorage = mock(ImageStorage.class);
         UserService userServiceTest = mock(UserService.class);
 
         hobbyServiceToTest = new HobbyServiceImpl
-                (mockHobbyRepository, categoryServiceTest, userServiceTest, locationServiceTest, cloudinary);
+                (mockHobbyRepository, categoryServiceTest, userServiceTest, locationServiceTest, imageStorage);
 
         // prepare hobby data
         hobby = new Hobby();

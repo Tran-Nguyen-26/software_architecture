@@ -11,10 +11,11 @@ import backend.hobbiebackend.service.CategoryService;
 import backend.hobbiebackend.service.HobbyService;
 import backend.hobbiebackend.service.LocationService;
 import backend.hobbiebackend.service.UserService;
-import com.cloudinary.Cloudinary;
+import backend.hobbiebackend.acl.ImageStorage;
 import lombok.SneakyThrows;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +29,16 @@ public class HobbyServiceImpl implements HobbyService {
     private final CategoryService categoryService;
     private final UserService userService;
     private final LocationService locationService;
-    private final Cloudinary cloudinary;
+    private final ImageStorage imageStorage;
     private final ModelMapper modelMapper;
 
-    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary, ModelMapper modelMapper) {
+    @Autowired
+    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, ImageStorage imageStorage, ModelMapper modelMapper) {
         this.hobbyRepository = hobbyRepository;
         this.categoryService = categoryService;
         this.userService = userService;
         this.locationService = locationService;
-        this.cloudinary = cloudinary;
+        this.imageStorage = imageStorage;
         this.modelMapper = modelMapper;
     }
 
@@ -80,8 +82,7 @@ public class HobbyServiceImpl implements HobbyService {
         String galleryImgId2 = byId.getGalleryImg2_id();
         String galleryImgId3 = byId.getGalleryImg3_id();
 
-        cloudinary.api().deleteResources(Arrays.asList(profileImgId, galleryImgId1, galleryImgId2, galleryImgId3),
-                Map.of("invalidate", true));
+        imageStorage.deleteResources(Arrays.asList(profileImgId, galleryImgId1, galleryImgId2, galleryImgId3), true);
     }
 
 

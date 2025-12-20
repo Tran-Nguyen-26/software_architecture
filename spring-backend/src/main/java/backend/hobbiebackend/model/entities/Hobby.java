@@ -7,13 +7,20 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "hobbies")
-public class Hobby extends BaseEntity implements Serializable {
+@Table(name = "hobbies", indexes = {
+        @Index(name = "idx_hobbies_name", columnList = "name"),
+        @Index(name = "idx_hobbies_creator", columnList = "creator"),
+        @Index(name = "idx_hobbies_price", columnList = "price"),
+        @Index(name = "idx_hobbies_category_id", columnList = "category_id"),
+        @Index(name = "idx_hobbies_location_id", columnList = "location_id")
+})
+public class Hobby extends BaseEntity {
     private String name;
     private String slogan;
     private String intro;

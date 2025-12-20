@@ -8,10 +8,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 
 @Entity
-@Table(name = "categories")
-public class Category extends BaseEntity implements Serializable {
+@Table(name = "categories", indexes = {
+        @Index(name = "idx_categories_name", columnList = "name")
+})
+public class Category extends BaseEntity {
     private CategoryNameEnum name;
 
     public Category(CategoryNameEnum categoryNameEnum) {

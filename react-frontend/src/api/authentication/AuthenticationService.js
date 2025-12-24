@@ -47,6 +47,9 @@ class AuthenticationService {
   setUpToken(jwtToken) {
     localStorage.setItem("token", jwtToken);
   }
+  
+  getToken() {
+  return localStorage.getItem("token");
+  }
 }
-
 export default new AuthenticationService();

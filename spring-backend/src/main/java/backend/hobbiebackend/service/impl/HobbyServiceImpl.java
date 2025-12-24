@@ -3,6 +3,7 @@ package backend.hobbiebackend.service.impl;
 import backend.hobbiebackend.handler.NotFoundException;
 import backend.hobbiebackend.model.dto.HobbyInfoDto;
 import backend.hobbiebackend.model.dto.HobbyInfoUpdateDto;
+import backend.hobbiebackend.model.dto.HobbyViewDto;
 import backend.hobbiebackend.model.entities.*;
 import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
 import backend.hobbiebackend.model.entities.enums.LocationEnum;
@@ -12,11 +13,16 @@ import backend.hobbiebackend.service.HobbyService;
 import backend.hobbiebackend.service.LocationService;
 import backend.hobbiebackend.service.UserService;
 import backend.hobbiebackend.acl.ImageStorage;
+import backend.hobbiebackend.service.CloudinaryService;
+import com.cloudinary.Cloudinary;
 import lombok.SneakyThrows;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,15 +37,19 @@ public class HobbyServiceImpl implements HobbyService {
     private final LocationService locationService;
     private final ImageStorage imageStorage;
     private final ModelMapper modelMapper;
+    private final Cloudinary cloudinary;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
-    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, ImageStorage imageStorage, ModelMapper modelMapper) {
+    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary, ImageStorage imageStorage, ModelMapper modelMapper, CloudinaryService cloudinaryService) {
         this.hobbyRepository = hobbyRepository;
         this.categoryService = categoryService;
         this.userService = userService;
         this.locationService = locationService;
         this.imageStorage = imageStorage;
         this.modelMapper = modelMapper;
+        this.cloudinary = cloudinary;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @Override
@@ -55,11 +65,7 @@ public class HobbyServiceImpl implements HobbyService {
     @SneakyThrows
     @Override
     public void saveUpdatedHobby(Hobby hobby) {
-        Optional<Hobby> byId = this.hobbyRepository.findById(hobby.getId());
-        if (byId.isPresent()) {
-            deleteResourcesById(byId.get());
-        }
-        this.hobbyRepository.save(hobby);
+        cloudinaryService.deleteHobbyImages(hobby);
     }
 
     @Override
@@ -162,10 +168,31 @@ public class HobbyServiceImpl implements HobbyService {
         return false;
     }
 
-    @Override
-    public List<Hobby> findSavedHobbies(AppClient currentAppClient) {
-        return currentAppClient.getSaved_hobbies();
+   @Override
+    public Page<HobbyViewDto> findSavedHobbies(AppClient currentAppClient, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Hobby> savedPage =
+                hobbyRepository.findSavedHobbiesByUser(currentAppClient.getId(), pageable);
+
+        return savedPage.map(h -> {
+            HobbyViewDto dto = new HobbyViewDto();
+            dto.setId(h.getId());
+            dto.setName(h.getName());
+            dto.setSlogan(h.getSlogan());
+            dto.setDescription(h.getDescription());
+            dto.setPrice(h.getPrice());
+            dto.setCategory(h.getCategory().getName().name());
+            dto.setLocation(h.getLocation().getName().name());
+            dto.setProfileImgUrl(h.getProfileImgUrl());
+            dto.setGalleryImgUrl1(h.getGalleryImgUrl1());
+            dto.setGalleryImgUrl2(h.getGalleryImgUrl2());
+            dto.setGalleryImgUrl3(h.getGalleryImgUrl3());
+            return dto;
+        });
     }
+
+
 
     @Override
     @Cacheable(value = "businessHobbies", key = "#username")

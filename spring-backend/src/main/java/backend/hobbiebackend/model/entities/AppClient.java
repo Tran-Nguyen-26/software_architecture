@@ -15,6 +15,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "app_clients")
 public class AppClient extends UserEntity implements Serializable {
@@ -70,11 +72,12 @@ public class AppClient extends UserEntity implements Serializable {
         this.testResults = testResults;
     }
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     public List<Hobby> getSaved_hobbies() {
         return saved_hobbies;
     }
-
+    
     public void setSaved_hobbies(List<Hobby> saved_hobbies) {
         this.saved_hobbies = saved_hobbies;
     }

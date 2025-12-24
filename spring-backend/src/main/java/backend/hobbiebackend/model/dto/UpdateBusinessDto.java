@@ -1,6 +1,9 @@
 package backend.hobbiebackend.model.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public class UpdateBusinessDto {
+    @NotNull(message = "id must be not null")
     private Long id;
     private String businessName;
     private String address;

@@ -1,22 +1,40 @@
 package backend.hobbiebackend.model.dto;
 
-import backend.hobbiebackend.model.entities.Category;
-import backend.hobbiebackend.model.entities.Location;
 import backend.hobbiebackend.model.entities.enums.CategoryNameEnum;
 import backend.hobbiebackend.model.entities.enums.LocationEnum;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
 public class HobbyInfoDto {
+    @NotBlank(message = "Name muet be not blank")
     private String name;
+
+    @NotBlank
     private String slogan;
+
+    @NotBlank
     private String intro;
+
+    @NotBlank
     private String description;
+
+    @NotBlank
     private CategoryNameEnum category;
+
+    @NotBlank
     private String creator;
+
+    @NotNull
     private BigDecimal price;
+
+    @NotBlank
     private LocationEnum location;
+
+    @NotBlank
     private String contactInfo;
+
     private String profileImgUrl;
     private String galleryImgUrl1;
     private String galleryImgUrl2;

@@ -17,6 +17,8 @@ import backend.hobbiebackend.service.UserService;
 import backend.hobbiebackend.utility.JWTUtility;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +28,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -53,7 +51,7 @@ public class UserController {
 
     @PostMapping("/signup")
     @Operation(summary = "Create new client-user")
-    public ResponseEntity<?> signup(@RequestBody AppClientSignUpDto user) {
+    public ResponseEntity<?> signup(@Valid @RequestBody AppClientSignUpDto user) {
         System.out.println(user);
         AppClient client = this.userService.register(user);
         return new ResponseEntity<AppClient>(client, HttpStatus.CREATED);
@@ -61,7 +59,7 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "Create new business-user")
-    public ResponseEntity<?> registerBusiness(@RequestBody BusinessRegisterDto business) {
+    public ResponseEntity<?> registerBusiness(@Valid @RequestBody BusinessRegisterDto business) {
         BusinessOwner businessOwner = this.userService.registerBusiness(business);
         return new ResponseEntity<BusinessOwner>(businessOwner, HttpStatus.CREATED);
     }
@@ -124,7 +122,7 @@ public class UserController {
 
     @PostMapping("/authenticate")
     @Operation(summary = "Authenticate user and get JWT Token")
-    public JwtResponse authenticate(@RequestBody JwtRequest jwtRequest) throws Exception {
+    public JwtResponse authenticate(@Valid @RequestBody JwtRequest jwtRequest) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

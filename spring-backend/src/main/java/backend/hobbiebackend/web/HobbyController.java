@@ -12,6 +12,9 @@ import backend.hobbiebackend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +57,7 @@ public class HobbyController {
 
     @PostMapping
     @Operation(summary = "Create new hobby", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<HttpStatus> saveHobby(@RequestBody HobbyInfoDto info) {
+    public ResponseEntity<HttpStatus> saveHobby(@Valid @RequestBody HobbyInfoDto info) {
         hobbyService.saveHobby(info);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -104,7 +107,7 @@ public class HobbyController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete hobby", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<Long> deleteHobby(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Long> deleteHobby(@Positive @NotNull @PathVariable Long id) throws Exception {
         boolean isRemoved = this.hobbyService.deleteHobby(id);
         if (!isRemoved) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -131,14 +134,14 @@ public class HobbyController {
     @PostMapping("/campaign")
     @Operation(summary = "Business gửi email campaign tới tất cả user đã save hobbies của business",
             security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> sendCampaign(@RequestBody BusinessCampaignRequest req) {
+    public ResponseEntity<?> sendCampaign(@Valid @RequestBody BusinessCampaignRequest req) {
         BusinessOwner owner = userService.findBusinessByUsername(req.getUsername());
         notificationService.notifyBusinessCampaign(owner, req.getSubject(), req.getContent());
         return new ResponseEntity<>("Campaign pushed to MQ", HttpStatus.OK);
     }
 
     @PostMapping("/campaign/direct-test-50")
-    public ResponseEntity<?> directSend1000(@RequestBody BusinessCampaignRequest req) {
+    public ResponseEntity<?> directSend1000(@Valid @RequestBody BusinessCampaignRequest req) {
 
         long start = System.currentTimeMillis();
 

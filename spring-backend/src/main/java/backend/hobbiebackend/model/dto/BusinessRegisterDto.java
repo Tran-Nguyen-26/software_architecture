@@ -1,10 +1,22 @@
 package backend.hobbiebackend.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class BusinessRegisterDto {
+
+    @NotBlank(message = "username must be not blank")
     private String username;
+
+    @NotBlank(message = "businessName must be not blank")
     private String businessName;
+
+    @NotBlank(message = "address must be not blank")
     private String address;
+
+    @NotBlank(message = "email must be not blank")
     private String email;
+
+    @NotBlank(message = "email must be not blank")
     private String password;
 
     public BusinessRegisterDto() {

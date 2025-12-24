@@ -1,12 +1,22 @@
 package backend.hobbiebackend.model.dto;
 
 import backend.hobbiebackend.model.entities.enums.GenderEnum;
+import jakarta.validation.constraints.NotBlank;
 
 public class AppClientSignUpDto {
+
+    @NotBlank(message = "username must be not blank")
     private String username;
+
+    @NotBlank(message = "fullname must be not blank")
     private String fullName;
+
     private GenderEnum gender;
+
+    @NotBlank(message = "email must be not blank")
     private String email;
+
+    @NotBlank(message = "password must be not blank")
     private String password;
 
     public AppClientSignUpDto() {

@@ -37,4 +37,7 @@ public interface HobbyService {
     void saveHobby(HobbyInfoDto info);
 
     Hobby updateHobby(HobbyInfoUpdateDto info);
+
+    Page<HobbyViewDto> searchHobbiesByNameAndMaxPrice(String name, BigDecimal maxPrice, int page, int size);
+
 }

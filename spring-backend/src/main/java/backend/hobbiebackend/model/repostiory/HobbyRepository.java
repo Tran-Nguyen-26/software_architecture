@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Set;
+import java.math.BigDecimal;
 
 @Repository
 public interface HobbyRepository extends JpaRepository<Hobby, Long> {
@@ -26,5 +27,15 @@ public interface HobbyRepository extends JpaRepository<Hobby, Long> {
         WHERE c.id = :userId
         """)
     Page<Hobby> findSavedHobbiesByUser(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("""
+    SELECT h FROM Hobby h
+    WHERE (:name IS NULL OR h.name LIKE CONCAT(:name, '%'))
+    AND (:price IS NULL OR h.price <= :price)
+    """)
+    Page<Hobby> searchByNamePrefixAndMaxPrice(@Param("name") String name,
+                                            @Param("price") BigDecimal price,
+                                            Pageable pageable);
+
 
 }

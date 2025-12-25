@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.math.BigDecimal;
 
 
 @RestController
@@ -170,4 +171,14 @@ public class HobbyController {
         return ResponseEntity.ok("DIRECT sent=" + sent + ", tookMs=" + tookMs);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<HobbyViewDto>> searchHobbies(
+            @RequestParam String name,
+            @RequestParam BigDecimal maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<HobbyViewDto> result = hobbyService.searchHobbiesByNameAndMaxPrice(name, maxPrice, page, size);
+        return ResponseEntity.ok(result);
+    }
 }

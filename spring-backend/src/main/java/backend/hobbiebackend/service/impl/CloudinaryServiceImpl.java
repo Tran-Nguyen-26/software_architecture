@@ -22,9 +22,9 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         if (publicIds.isEmpty()) return;
 
         try {
-            cloudinary.api().deleteResources(publicIds, Map.of("invalidate", true));
+            Map result = cloudinary.api().deleteResources(publicIds, Map.of("invalidate", true));
+            System.out.println("Cloudinary delete result = " + result);
         } catch (Exception e) {
-            // QUAN TRỌNG: phải throw để CircuitBreaker ghi nhận failure
             throw new RuntimeException("Cloudinary deleteResources failed", e);
         }
     }
@@ -44,12 +44,8 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         return cleaned;
     }
 
-    // fallback phải public/protected để proxy gọi ổn định (khuyến nghị)
     protected void deleteFallback(Hobby hobby, Throwable ex) {
         System.err.println("[CloudinaryFallback] Could not delete images for hobbyId="
                 + hobby.getId() + " reason=" + ex.getMessage());
-
-        // Best-effort: không throw để không chặn flow xóa hobby
-        // Nếu muốn fail cứng thì throw RuntimeException ở đây
     }
 }

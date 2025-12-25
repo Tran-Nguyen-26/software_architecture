@@ -30,16 +30,14 @@ public class HobbyServiceImpl implements HobbyService {
     private final CategoryService categoryService;
     private final UserService userService;
     private final LocationService locationService;
-    private final Cloudinary cloudinary;
     private final CloudinaryService cloudinaryService;
 
     @Autowired
-    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, Cloudinary cloudinary, CloudinaryService cloudinaryService) {
+    public HobbyServiceImpl(HobbyRepository hobbyRepository, CategoryService categoryService, UserService userService, LocationService locationService, CloudinaryService cloudinaryService) {
         this.hobbyRepository = hobbyRepository;
         this.categoryService = categoryService;
         this.userService = userService;
         this.locationService = locationService;
-        this.cloudinary = cloudinary;
         this.cloudinaryService = cloudinaryService;
     }
 
@@ -56,7 +54,11 @@ public class HobbyServiceImpl implements HobbyService {
     @SneakyThrows
     @Override
     public void saveUpdatedHobby(Hobby hobby) {
-        cloudinaryService.deleteHobbyImages(hobby);
+        Optional<Hobby> byId = this.hobbyRepository.findById(hobby.getId());
+        if (byId.isPresent()) {
+            deleteResourcesById(byId.get());
+        }
+        this.hobbyRepository.save(hobby);
     }
 
     @Override
@@ -73,14 +75,8 @@ public class HobbyServiceImpl implements HobbyService {
         return false;
     }
 
-    private void deleteResourcesById(Hobby byId) throws Exception {
-        String profileImgId = byId.getProfileImg_id();
-        String galleryImgId1 = byId.getGalleryImg1_id();
-        String galleryImgId2 = byId.getGalleryImg2_id();
-        String galleryImgId3 = byId.getGalleryImg3_id();
-
-        cloudinary.api().deleteResources(Arrays.asList(profileImgId, galleryImgId1, galleryImgId2, galleryImgId3),
-                Map.of("invalidate", true));
+    private void deleteResourcesById(Hobby hobby) {
+        cloudinaryService.deleteHobbyImages(hobby);
     }
 
 
@@ -202,5 +198,28 @@ public class HobbyServiceImpl implements HobbyService {
         this.hobbyRepository.save(offer);
     }
 
+    @Override
+    public Page<HobbyViewDto> searchHobbiesByNameAndMaxPrice(String name, BigDecimal maxPrice, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Hobby> hobbyPage = hobbyRepository
+                .searchByNamePrefixAndMaxPrice(name, maxPrice, pageable);
+
+        return hobbyPage.map(h -> {
+            HobbyViewDto dto = new HobbyViewDto();
+            dto.setId(h.getId());
+            dto.setName(h.getName());
+            dto.setSlogan(h.getSlogan());
+            dto.setDescription(h.getDescription());
+            dto.setPrice(h.getPrice());
+            dto.setCategory(h.getCategory().getName().name());
+            dto.setLocation(h.getLocation().getName().name());
+            dto.setProfileImgUrl(h.getProfileImgUrl());
+            dto.setGalleryImgUrl1(h.getGalleryImgUrl1());
+            dto.setGalleryImgUrl2(h.getGalleryImgUrl2());
+            dto.setGalleryImgUrl3(h.getGalleryImgUrl3());
+            return dto;
+        });
+    }
 }
 

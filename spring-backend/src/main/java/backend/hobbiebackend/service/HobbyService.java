@@ -4,6 +4,7 @@ import backend.hobbiebackend.model.entities.AppClient;
 import backend.hobbiebackend.model.entities.Hobby;
 import backend.hobbiebackend.model.dto.HobbyViewDto;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -31,4 +32,7 @@ public interface HobbyService {
     Set<Hobby> getAllHobbieMatchesForClient(String username);
 
     void createHobby(Hobby offer);
+
+    Page<HobbyViewDto> searchHobbiesByNameAndMaxPrice(String name, BigDecimal maxPrice, int page, int size);
+
 }

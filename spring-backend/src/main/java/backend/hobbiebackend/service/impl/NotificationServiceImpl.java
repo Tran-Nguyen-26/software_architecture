@@ -33,9 +33,6 @@ public class NotificationServiceImpl implements NotificationService {
         this.appClientRepository = appClientRepository;
     }
 
-    /**
-     * Hàm dùng chung để đẩy payload ra RabbitMQ
-     */
     private void publish(Map<String, Object> payload) {
         try {
             String json = new ObjectMapper().writeValueAsString(payload);
@@ -49,9 +46,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    /**
-     * VD: gửi email reset password – payload type: PASSWORD_RESET
-     */
     @Override
     public void sendNotification(UserEntity userEntity) {
         Map<String, Object> payload = new HashMap<>();
@@ -67,11 +61,6 @@ public class NotificationServiceImpl implements NotificationService {
         System.out.println("Message sent to MQ for email: " + userEntity.getEmail());
     }
 
-    /**
-     * Hàm bạn cần: hobby được business update
-     * -> lấy tất cả AppClient đã save hobby này
-     * -> push message HOBBY_UPDATED ra MQ để service gửi email.
-     */
     @Override
     public void notifyBusinessCampaign(BusinessOwner owner, String subject, String content) {
         Set<Hobby> hobbies = owner.getHobby_offers();

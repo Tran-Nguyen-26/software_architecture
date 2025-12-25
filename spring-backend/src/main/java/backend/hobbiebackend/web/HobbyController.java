@@ -25,6 +25,7 @@ import backend.hobbiebackend.service.NotificationService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -186,4 +187,14 @@ public class HobbyController {
         return ResponseEntity.ok("DIRECT sent=" + sent + ", tookMs=" + tookMs);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<HobbyViewDto>> searchHobbies(
+            @RequestParam String name,
+            @RequestParam BigDecimal maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<HobbyViewDto> result = hobbyService.searchHobbiesByNameAndMaxPrice(name, maxPrice, page, size);
+        return ResponseEntity.ok(result);
+    }
 }

@@ -77,7 +77,9 @@ public class SecurityConfiguration {
                 .requestMatchers(
                     "/api/v1/login/**",
                     "/register", "/signup", "/authenticate", "/notification", "/password",
-                    "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**"
+                    "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**",
+                    "/actuator/**",
+                    "/actuator/health"
                 ).permitAll()
                 .anyRequest().authenticated()
             );
